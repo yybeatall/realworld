@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>访客签到系统</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      background-color: #f5f5f5;
+    }
+    .container {
+      width: 100%;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+    .welcome-container {
+      text-align: center;
+    }
+    .logo {
+      width: 200px;
+      height: 200px;
+      margin-bottom: 20px;
+    }
+    .welcome-message {
+      font-size: 36px;
+      color: #333;
+      margin-bottom: 40px;
+    }
+    .checkin-button {
+      padding: 15px 30px;
+      font-size: 24px;
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .checkin-button:hover {
+      background-color: #0056b3;
+    }
+    .form-container {
+      display: none;
+      background-color: #fff;
+      padding: 40px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    .form-container h2 {
+      margin-bottom: 20px;
+      color: #333;
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      color: #333;
+    }
+    .form-group input {
+      width: 100%;
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    .form-buttons {
+      display: flex;
+      justify-content: space-between;
+    }
+    .form-buttons button {
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .submit-button {
+      background-color: #28a745;
+      color: #fff;
+    }
+    .submit-button:hover {
+      background-color: #218838;
+    }
+    .back-button {
+      background-color: #6c757d;
+      color: #fff;
+    }
+    .back-button:hover {
+      background-color: #5a6268;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- 待机页面 -->
+    <div class="welcome-container" id="welcomePage">
+      <img src="https://via.placeholder.com/200x200?text=企业Logo" alt="企业Logo" class="logo">
+      <h1 class="welcome-message">欢迎光临</h1>
+      <button class="checkin-button" onclick="showCheckinForm()">签到</button>
+    </div>
+
+    <!-- 签到页面 -->
+    <div class="form-container" id="checkinForm">
+      <h2>访客签到</h2>
+      <div class="form-group">
+        <label for="phone">手机号:</label>
+        <input type="tel" id="phone" placeholder="请输入手机号">
+      </div>
+      <div class="form-group">
+        <label for="idCard">身份证号:</label>
+        <input type="text" id="idCard" placeholder="请输入身份证号">
+      </div>
+      <div class="form-buttons">
+        <button class="back-button" onclick="showWelcomePage()">返回</button>
+        <button class="submit-button" onclick="checkin()">提交</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function showCheckinForm() {
+      document.getElementById('welcomePage').style.display = 'none';
+      document.getElementById('checkinForm').style.display = 'block';
+    }
+
+    function showWelcomePage() {
+      document.getElementById('checkinForm').style.display = 'none';
+      document.getElementById('welcomePage').style.display = 'block';
+    }
+
+    function checkin() {
+      const phone = document.getElementById('phone').value;
+      const idCard = document.getElementById('idCard').value;
+
+      if (!phone && !idCard) {
+        alert('请输入手机号或身份证号');
+        return;
+      }
+
+      // Here we would normally send the data to the API
+      console.log('签到信息:', { phone, idCard });
+      alert('签到成功!');
+      showWelcomePage();
+    }
+  </script>
+</body>
+</html>
