@@ -1,0 +1,32 @@
+datasource db {
+  provider = "sqlite"
+}
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["omitApi"]
+}
+
+model Visitor {
+  id              Int      @id @default(autoincrement())
+  name            String
+  phone           String
+  idCardNumber    String
+  visitTime       DateTime
+  visitFloor      String
+  isRegistered    Boolean  @default(false)
+  receptionistId  String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @default(now())
+}
+
+model VisitorRecord {
+  id              Int      @id @default(autoincrement())
+  visitorId       Int
+  visitor         Visitor  @relation(fields: [visitorId], references: [id], onDelete: Cascade)
+  checkInTime     DateTime
+  checkOutTime    DateTime?
+  status          String   @default("active")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @default(now())
+}
