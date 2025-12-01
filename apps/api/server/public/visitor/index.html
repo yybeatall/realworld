@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>访客签到系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            width: 1920px;
+            height: 1080px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .background-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            opacity: 0.3;
+            z-index: 1;
+        }
+
+        .content {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .logo {
+            width: 200px;
+            height: 200px;
+            margin-bottom: 40px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: #333;
+            font-weight: bold;
+        }
+
+        .welcome-text {
+            font-size: 48px;
+            font-weight: 300;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .sub-text {
+            font-size: 24px;
+            margin-bottom: 60px;
+            opacity: 0.9;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        .checkin-button {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+            border: none;
+            padding: 25px 60px;
+            font-size: 28px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(238, 90, 36, 0.4);
+            font-weight: 500;
+        }
+
+        .checkin-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(238, 90, 36, 0.6);
+        }
+
+        .checkin-button:active {
+            transform: translateY(-1px);
+        }
+
+        /* 页面切换动画 */
+        .page {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+
+        .page.active {
+            opacity: 1;
+            visibility: visible;
+            z-index: 10;
+        }
+
+        /* 签到页面样式 */
+        .checkin-page {
+            background: linear-gradient(135deg, #74b9ff, #0984e3);
+        }
+
+        .checkin-options {
+            display: flex;
+            gap: 40px;
+            margin-top: 40px;
+        }
+
+        .checkin-option {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 20px;
+            padding: 40px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            min-width: 300px;
+        }
+
+        .checkin-option:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateY(-5px);
+        }
+
+        .checkin-option-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+
+        .checkin-option-title {
+            font-size: 24px;
+            font-weight: 500;
+            margin-bottom: 10px;
+        }
+
+        .checkin-option-desc {
+            font-size: 16px;
+            opacity: 0.8;
+        }
+
+        /* 输入页面样式 */
+        .input-page {
+            background: linear-gradient(135deg, #00b894, #00a085);
+        }
+
+        .input-form {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 40px;
+            backdrop-filter: blur(10px);
+            max-width: 600px;
+            width: 100%;
+        }
+
+        .form-group {
+            margin-bottom: 30px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 18px;
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 15px 20px;
+            font-size: 18px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .form-input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .form-input:focus {
+            border-color: rgba(255, 255, 255, 0.6);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .form-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 40px;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            font-size: 18px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        /* 验证页面样式 */
+        .verification-page {
+            background: linear-gradient(135deg, #fdcb6e, #e17055);
+        }
+
+        .verification-content {
+            text-align: center;
+            max-width: 800px;
+        }
+
+        .verification-icon {
+            font-size: 120px;
+            margin-bottom: 30px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .verification-title {
+            font-size: 36px;
+            margin-bottom: 20px;
+        }
+
+        .verification-desc {
+            font-size: 20px;
+            margin-bottom: 40px;
+            opacity: 0.9;
+        }
+
+        .verification-status {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            font-size: 18px;
+        }
+
+        /* 确认页面样式 */
+        .confirmation-page {
+            background: linear-gradient(135deg, #55a3ff, #003d82);
+        }
+
+        .visitor-info {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 40px;
+            backdrop-filter: blur(10px);
+            margin: 20px 0;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            font-size: 20px;
+        }
+
+        .info-label {
+            font-weight: 500;
+            opacity: 0.8;
+        }
+
+        .info-value {
+            font-weight: 600;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            margin-left: 10px;
+        }
+
+        .status-today {
+            background: #00b894;
+            color: white;
+        }
+
+        .status-other {
+            background: #fdcb6e;
+            color: #333;
+        }
+
+        /* 打印页面样式 */
+        .print-page {
+            background: linear-gradient(135deg, #a29bfe, #6c5ce7);
+        }
+
+        .print-preview {
+            background: white;
+            color: #333;
+            border-radius: 10px;
+            padding: 30px;
+            margin: 20px 0;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .print-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #eee;
+        }
+
+        .print-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2d3436;
+            margin-bottom: 10px;
+        }
+
+        .print-date {
+            font-size: 14px;
+            color: #636e72;
+        }
+
+        .print-content {
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        .print-footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #eee;
+            font-size: 12px;
+            color: #636e72;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* 消息提示样式 */
+        .message {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 15px 25px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 500;
+            z-index: 1000;
+            animation: slideDown 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .message.error {
+            background: rgba(231, 76, 60, 0.9);
+            color: white;
+            border: 2px solid rgba(231, 76, 60, 0.8);
+        }
+
+        .message.success {
+            background: rgba(46, 204, 113, 0.9);
+            color: white;
+            border: 2px solid rgba(46, 204, 113, 0.8);
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateX(-50%) translateY(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(-50%) translateY(0);
+                opacity: 1;
+            }
+        }
+
+        /* 响应式调整 - 移除可能导致白屏的transform */
+        @media screen and (max-width: 1920px) {
+            body {
+                width: 100vw;
+                height: 100vh;
+                overflow: hidden;
+            }
+            
+            .container {
+                width: 100vw;
+                height: 100vh;
+            }
+        }
+
+        /* 确保页面可见性的备用样式 */
+        .page:not(.active) {
+            display: none !important;
+        }
+        
+        .page.active {
+            display: block !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- 待机页面 -->
+    <div id="idle-page" class="page active">
+        <div class="container">
+            <div id="background-overlay" class="background-overlay"></div>
+            <div class="content">
+                <div id="company-logo" class="logo">企业LOGO</div>
+                <h1 id="welcome-text" class="welcome-text">欢迎来访</h1>
+                <p id="sub-text" class="sub-text">请按下方按钮开始签到</p>
+                <button class="checkin-button" onclick="showCheckinPage()">开始签到</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 签到方式选择页面 -->
+    <div id="checkin-page" class="page checkin-page">
+        <div class="content">
+            <h1 class="welcome-text">选择签到方式</h1>
+            <div class="checkin-options">
+                <div class="checkin-option" onclick="showPhoneInput()">
+                    <div class="checkin-option-icon">📱</div>
+                    <div class="checkin-option-title">手机号签到</div>
+                    <div class="checkin-option-desc">输入您的手机号码</div>
+                </div>
+                <div class="checkin-option" onclick="showIdCardInput()">
+                    <div class="checkin-option-icon">🆔</div>
+                    <div class="checkin-option-title">身份证签到</div>
+                    <div class="checkin-option-desc">输入您的身份证号码</div>
+                </div>
+            </div>
+            <div class="form-buttons">
+                <button class="btn btn-secondary" onclick="showIdlePage()">返回</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 手机号输入页面 -->
+    <div id="phone-input-page" class="page input-page">
+        <div class="content">
+            <h1 class="welcome-text">手机号签到</h1>
+            <div class="input-form">
+                <div class="form-group">
+                    <label class="form-label">请输入您的手机号码</label>
+                    <input type="tel" id="phone-input" class="form-input" placeholder="请输入11位手机号" maxlength="11">
+                </div>
+                <div class="form-buttons">
+                    <button class="btn btn-primary" onclick="submitPhone()">确认</button>
+                    <button class="btn btn-secondary" onclick="showCheckinPage()">返回</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 身份证输入页面 -->
+    <div id="idcard-input-page" class="page input-page">
+        <div class="content">
+            <h1 class="welcome-text">身份证签到</h1>
+            <div class="input-form">
+                <div class="form-group">
+                    <label class="form-label">请输入您的身份证号码</label>
+                    <input type="text" id="idcard-input" class="form-input" placeholder="请输入18位身份证号码" maxlength="18">
+                </div>
+                <div class="form-buttons">
+                    <button class="btn btn-primary" onclick="submitIdCard()">确认</button>
+                    <button class="btn btn-secondary" onclick="showCheckinPage()">返回</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 人证比对页面 -->
+    <div id="verification-page" class="page verification-page">
+        <div class="content">
+            <div class="verification-content">
+                <div class="verification-icon">👁️</div>
+                <h1 class="verification-title">正在进行人证比对</h1>
+                <p class="verification-desc">请将您的脸部对准摄像头，保持静止</p>
+                <div class="verification-status" id="verification-status">
+                    正在检测人脸...
+                </div>
+                <div class="form-buttons">
+                    <button class="btn btn-secondary" onclick="cancelVerification()">取消</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 行程确认页面 -->
+    <div id="confirmation-page" class="page confirmation-page">
+        <div class="content">
+            <h1 class="welcome-text">行程确认</h1>
+            <div class="visitor-info" id="visitor-info">
+                <!-- 访客信息将动态插入这里 -->
+            </div>
+            <div class="form-buttons">
+                <button class="btn btn-primary" id="print-button" onclick="printVisitorCard()">打印访客证</button>
+                <button class="btn btn-secondary" onclick="showIdlePage()">完成</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 访客证打印页面 -->
+    <div id="print-page" class="page print-page">
+        <div class="content">
+            <h1 class="welcome-text">访客证打印</h1>
+            <div class="print-preview" id="print-preview">
+                <!-- 访客证预览将动态插入这里 -->
+            </div>
+            <div class="form-buttons">
+                <button class="btn btn-primary" onclick="confirmPrint()">确认打印</button>
+                <button class="btn btn-secondary" onclick="showConfirmationPage()">返回</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 消息提示 -->
+    <div id="error-message" class="message error hidden"></div>
+    <div id="success-message" class="message success hidden"></div>
+
+    <script>
+        let currentVisitor = null;
+        let currentPage = 'idle';
+        
+        // 获取消息元素引用
+        const errorMessage = document.getElementById('error-message');
+        const successMessage = document.getElementById('success-message');
+
+        // 页面切换函数
+        function showPage(pageId) {
+            // 隐藏所有页面
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            
+            // 显示目标页面
+            const targetPage = document.getElementById(pageId);
+            if (targetPage) {
+                targetPage.classList.add('active');
+                currentPage = pageId.replace('-page', '');
+                console.log('切换到页面:', currentPage);
+            } else {
+                console.error('页面未找到:', pageId);
+            }
+        }
+
+        function showIdlePage() {
+            showPage('idle-page');
+        }
+
+        function showCheckinPage() {
+            showPage('checkin-page');
+        }
+
+        function showPhoneInput() {
+            showPage('phone-input-page');
+            document.getElementById('phone-input').focus();
+        }
+
+        function showIdCardInput() {
+            showPage('idcard-input-page');
+            document.getElementById('idcard-input').focus();
+        }
+
+        function showVerificationPage() {
+            showPage('verification-page');
+            startVerification();
+        }
+
+        function showConfirmationPage() {
+            showPage('confirmation-page');
+        }
+
+        function showPrintPage() {
+            showPage('print-page');
+        }
+
+        // 提交手机号
+        async function submitPhone() {
+            const phone = document.getElementById('phone-input').value.trim();
+            if (!validatePhone(phone)) {
+                showError('请输入正确的手机号码');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/visitors/check-in', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        identifier: phone,
+                        identifierType: 'PHONE'
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    currentVisitor = data.visitor;
+                    showSuccess('签到成功，正在验证...');
+                    showVerificationPage();
+                } else {
+                    showError(data.statusMessage || '签到失败，请重试');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showError('网络错误，请重试');
+            }
+        }
+
+        // 提交身份证
+        async function submitIdCard() {
+            const idCard = document.getElementById('idcard-input').value.trim();
+            if (!validateIdCard(idCard)) {
+                showError('请输入正确的身份证号码');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/visitors/check-in', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        identifier: idCard,
+                        identifierType: 'ID_CARD'
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    currentVisitor = data.visitor;
+                    showSuccess('签到成功，正在验证...');
+                    showVerificationPage();
+                } else {
+                    showError(data.statusMessage || '签到失败，请重试');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showError('网络错误，请重试');
+            }
+        }
+
+        // 开始人证比对
+        function startVerification() {
+            const statusElement = document.getElementById('verification-status');
+            const messages = [
+                '正在检测人脸...',
+                '正在比对证件照片...',
+                '正在验证身份信息...',
+                '比对完成'
+            ];
+
+            let messageIndex = 0;
+            const interval = setInterval(() => {
+                if (messageIndex < messages.length) {
+                    statusElement.textContent = messages[messageIndex];
+                    messageIndex++;
+                } else {
+                    clearInterval(interval);
+                    // 模拟比对结果
+                    setTimeout(() => {
+                        completeVerification(true);
+                    }, 1000);
+                }
+            }, 1500);
+        }
+
+        // 完成验证
+        async function completeVerification(success) {
+            if (currentVisitor) {
+                try {
+                    const response = await fetch(`/api/visitors/${currentVisitor.id}/verify`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            visitorId: currentVisitor.id,
+                            verificationResult: success
+                        })
+                    });
+
+                    if (response.ok) {
+                        showSuccess('验证成功！');
+                        showConfirmationPage();
+                        displayVisitorInfo();
+                    } else {
+                        showError('验证失败，请重试');
+                        setTimeout(() => showIdlePage(), 2000);
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    showError('网络错误，请重试');
+                    setTimeout(() => showIdlePage(), 2000);
+                }
+            }
+        }
+
+        // 取消验证
+        function cancelVerification() {
+            showCheckinPage();
+        }
+
+        // 显示错误消息
+        function showError(message) {
+            if (errorMessage) {
+                errorMessage.textContent = message;
+                errorMessage.classList.remove('hidden');
+                errorMessage.style.display = 'block';
+                setTimeout(() => {
+                    errorMessage.classList.add('hidden');
+                    errorMessage.style.display = 'none';
+                }, 5000);
+            } else {
+                console.error('错误消息元素未找到:', message);
+                alert('错误: ' + message);
+            }
+        }
+
+        // 显示成功消息
+        function showSuccess(message) {
+            if (successMessage) {
+                successMessage.textContent = message;
+                successMessage.classList.remove('hidden');
+                successMessage.style.display = 'block';
+                setTimeout(() => {
+                    successMessage.classList.add('hidden');
+                    successMessage.style.display = 'none';
+                }, 3000);
+            } else {
+                console.error('成功消息元素未找到:', message);
+                alert('成功: ' + message);
+            }
+        }
+
+        // 显示访客信息
+        function displayVisitorInfo() {
+            if (!currentVisitor) return;
+
+            const visitDate = new Date(currentVisitor.visitTime);
+            const today = new Date();
+            const isToday = visitDate.toDateString() === today.toDateString();
+
+            const visitorInfoHTML = `
+                <div class="info-row">
+                    <span class="info-label">访客姓名：</span>
+                    <span class="info-value">${currentVisitor.name}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">手机号码：</span>
+                    <span class="info-value">${currentVisitor.phoneNumber}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">来访时间：</span>
+                    <span class="info-value">${visitDate.toLocaleString('zh-CN')}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">来访楼层：</span>
+                    <span class="info-value">${currentVisitor.visitFloor}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">接待人员：</span>
+                    <span class="info-value">${currentVisitor.receptionistId}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">行程状态：</span>
+                    <span class="info-value">
+                        ${isToday ? '今日行程' : '非今日行程'}
+                        <span class="status-badge ${isToday ? 'status-today' : 'status-other'}">
+                            ${isToday ? '可打印' : '请联系邀约人'}
+                        </span>
+                    </span>
+                </div>
+            `;
+
+            document.getElementById('visitor-info').innerHTML = visitorInfoHTML;
+            
+            // 控制打印按钮
+            const printButton = document.getElementById('print-button');
+            if (isToday) {
+                printButton.style.display = 'inline-block';
+            } else {
+                printButton.style.display = 'none';
+            }
+        }
+
+        // 打印访客证
+        function printVisitorCard() {
+            if (!currentVisitor) return;
+
+            const visitDate = new Date(currentVisitor.visitTime);
+            const today = new Date();
+            
+            const printPreviewHTML = `
+                <div class="print-header">
+                    <div class="print-title">访客证</div>
+                    <div class="print-date">${today.toLocaleDateString('zh-CN')}</div>
+                </div>
+                <div class="print-content">
+                    <p><strong>访客姓名：</strong>${currentVisitor.name}</p>
+                    <p><strong>来访时间：</strong>${visitDate.toLocaleString('zh-CN')}</p>
+                    <p><strong>来访楼层：</strong>${currentVisitor.visitFloor}</p>
+                    <p><strong>接待人员：</strong>${currentVisitor.receptionistId}</p>
+                    <p><strong>证件号码：</strong>${currentVisitor.idCardNumber.replace(/(\d{6})\d{8}(\d{4})/, '$1********$2')}</p>
+                </div>
+                <div class="print-footer">
+                    <p>此证件仅限当日有效，请妥善保管</p>
+                    <p>访客系统 - ${today.getFullYear()}</p>
+                </div>
+            `;
+
+            document.getElementById('print-preview').innerHTML = printPreviewHTML;
+            showPrintPage();
+        }
+
+        // 确认打印
+        function confirmPrint() {
+            // 这里调用浏览器的打印功能
+            window.print();
+            showIdlePage();
+        }
+
+        // 验证函数
+        function validatePhone(phone) {
+            return /^1[3-9]\d{9}$/.test(phone);
+        }
+
+        function validateIdCard(idCard) {
+            return /^[1-9]\d{5}(18|19|20)\d{2}(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])\d{3}[\dX]$/.test(idCard);
+        }
+
+        // 键盘事件处理
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                if (currentPage !== 'idle') {
+                    showIdlePage();
+                }
+            }
+        });
+
+        // 输入框自动跳转
+        document.getElementById('phone-input').addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                submitPhone();
+            }
+        });
+
+        document.getElementById('idcard-input').addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                submitIdCard();
+            }
+        });
+
+        // 加载配置
+        async function loadConfig() {
+            try {
+                const response = await fetch('/api/visitors/config');
+                const data = await response.json();
+                
+                if (response.ok) {
+                    // 应用配置
+                    data.configs.forEach(config => {
+                        if (config.key === 'background_image') {
+                            document.getElementById('background-overlay').style.backgroundImage = `url(${config.value})`;
+                        } else if (config.key === 'company_logo') {
+                            document.getElementById('company-logo').innerHTML = `<img src="${config.value}" alt="企业LOGO" style="max-width: 100%; max-height: 100%;">`;
+                        } else if (config.key === 'welcome_text') {
+                            document.getElementById('welcome-text').textContent = config.value;
+                        } else if (config.key === 'sub_text') {
+                            document.getElementById('sub-text').textContent = config.value;
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error('Failed to load config:', error);
+            }
+        }
+
+        // 页面加载完成后初始化
+        window.addEventListener('load', function() {
+            // 确保待机页面正确显示
+            showIdlePage();
+            loadConfig();
+            console.log('访客签到系统已加载完成');
+        });
+
+        // 页面可见性变化时的处理
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden) {
+                showIdlePage();
+            }
+        });
+    </script>
+</body>
+</html>

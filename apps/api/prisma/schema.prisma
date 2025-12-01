@@ -54,3 +54,31 @@ model User {
   comments   Comment[]
   demo       Boolean   @default(false)
 }
+
+model Visitor {
+  id              Int       @id @default(autoincrement())
+  name            String    // 访客姓名
+  phoneNumber     String    // 手机号
+  idCardNumber    String    // 身份证号
+  visitTime       DateTime  // 来访时间
+  visitFloor      String    // 来访楼层
+  isRegistered    Boolean   @default(false)  // 登记状态
+  receptionistId  String    // 接待人工号
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @default(now())
+  checkInTime     DateTime? // 签到时间
+  checkInStatus   String    @default("PENDING") // PENDING, CHECKED_IN, REJECTED
+  verificationStatus String @default("PENDING") // PENDING, VERIFIED, FAILED
+  
+  @@index([phoneNumber])
+  @@index([idCardNumber])
+  @@index([visitTime])
+}
+
+model VisitorConfig {
+  id            Int      @id @default(autoincrement())
+  key           String   @unique
+  value         String
+  description   String?
+  updatedAt     DateTime @default(now())
+}
